@@ -422,7 +422,9 @@ export function mergeOptions(
     child = child.options
   }
 
+  // tim-c 统一props格式
   normalizeProps(child, vm)
+  // tim-c 统一directives的格式
   normalizeInject(child, vm)
   normalizeDirectives(child)
 
@@ -452,6 +454,7 @@ export function mergeOptions(
     }
   }
   function mergeField(key: any) {
+    // tim-c 选取合并策略
     const strat = strats[key] || defaultStrat
     options[key] = strat(parent[key], child[key], vm, key)
   }
