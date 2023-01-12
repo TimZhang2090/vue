@@ -161,15 +161,19 @@ export function createPatchFunction(backend) {
         }
       }
 
+      // tim-c 先创建当前节点的 DOM
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
         : nodeOps.createElement(tag, vnode)
       setScope(vnode)
 
+      // tim-c vnode 上现在有 elm 了，可被插入；再创建递归创建当前节点子节点的 DOM
       createChildren(vnode, children, insertedVnodeQueue)
       if (isDef(data)) {
         invokeCreateHooks(vnode, insertedVnodeQueue)
       }
+
+      // tim-c 子节点DOM被创建好，再插入父节点DOM中，整个递归`插入DOM的过程`是一个 先子后父 的过程
       insert(parentElm, vnode.elm, refElm)
 
       if (__DEV__ && data && data.pre) {
