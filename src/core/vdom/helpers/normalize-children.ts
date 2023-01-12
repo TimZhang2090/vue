@@ -51,6 +51,7 @@ function normalizeArrayChildren(
 ): Array<VNode> {
   const res: VNode[] = []
   let i, c, lastIndex, last
+
   for (i = 0; i < children.length; i++) {
     c = children[i]
     if (isUndef(c) || typeof c === 'boolean') continue
@@ -95,5 +96,6 @@ function normalizeArrayChildren(
       }
     }
   }
+
   return res
 }

@@ -32,6 +32,7 @@ export function createElement(
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // tim-c 做一下参数的重载
   if (isArray(data) || isPrimitive(data)) {
     normalizationType = children
     children = data
