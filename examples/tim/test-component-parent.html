@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vue.js tim example</title>
+    <script src="../../../dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>test watch</h1>
+    </div>
+  </body>
+</html>
+
+
+<script>
+
+  var Parent = Vue.extend({
+    watch: {
+      'test': function() {
+        console.log('parent change')
+      }
+    }
+  })
+  var Child = Parent.extend({
+    watch: {
+      'test': {
+        handler: function() {
+          console.log('child change')
+        }
+      }
+    },
+    data() {
+      return {
+        test: 1
+      }
+    }
+  })
+
+  var vm = new Child().$mount('#app');
+  vm.test = 2;
+
+  // 输出结果
+  // parent change
+  // child change
+</script>

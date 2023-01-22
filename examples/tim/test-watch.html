@@ -6,7 +6,7 @@
   </head>
   <body>
     <div id="app">
-      <h1>test watch</h1>
+      <h1>Test All</h1>
     </div>
   </body>
 </html>
@@ -14,32 +14,54 @@
 
 <script>
 
-  var Parent = Vue.extend({
-    watch: {
-      'test': function() {
-        console.log('parent change')
-      }
+Vue.component('TimToggle', {
+  template: `<div>
+    <div v-if="isShow">
+      <span @click="getRandomText">{{ randomText }}</span>
+    </div>
+    <button @click="toggle">toggle</button>
+  </div>`,
+  data() {
+    return {
+      isShow: true,
+      randomText: '随机数'
     }
-  })
-  var Child = Parent.extend({
-    watch: {
-      'test': {
-        handler: function() {
-          console.log('child change')
-        }
-      }
+  },
+  methods:{
+    toggle() {
+      this.isShow = !this.isShow
     },
-    data() {
-      return {
-        test: 1
-      }
+    getRandomText() {
+      this.randomText = Math.random()
+    },
+  }
+})
+
+
+var vm = new Vue({
+  data() {
+    return {
+      name: 'L'
     }
-  })
+  },
+  methods: {
+    foo() {
+      console.log('foo')
+    }
+  },
+  render: function(h){
+    return h('TimToggle')
+  }
+})
 
-  var vm = new Child().$mount('#app');
-  vm.test = 2;
+vm.$mount('#app');
 
-  // 输出结果
-  // parent change
-  // child change
+setTimeout(() => {
+  vm.name = 'L';
+}, 1000);
+
+
+// console.log('vm:', vm)
+// console.log('Vue.prototype:', Vue.prototype)
+// console.log('Vue:', Object.entries(Vue))
 </script>
