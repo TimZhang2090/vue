@@ -6,7 +6,7 @@
   </head>
   <body>
     <div id="app">
-      <h1>Test All</h1>
+      <h1>test all</h1>
     </div>
   </body>
 </html>
@@ -18,11 +18,27 @@ Vue.component('TimSpan', {
 	template: '<span>组件</span>'
 })
 
+var Parent = Vue.extend({
+  // watch: {
+  //   'test': function() {
+  //     console.log('parent change')
+  //   }
+  // }
+})
 
-var vm = new Vue({
+console.log('Parent :', Parent)
+
+var Child = Parent.extend({
+  // watch: {
+  //   'test': {
+  //     handler: function() {
+  //       console.log('child change')
+  //     }
+  //   }
+  // },
   data() {
     return {
-      name: 'Tim'
+      test: 'Tim'
     }
   },
   methods: {
@@ -39,19 +55,20 @@ var vm = new Vue({
         },
       },
       [
-        '一行文字',
-        h('h1', this.name),
+        '先写一些文字',
+        h('h1', this.test),
         h('TimSpan'),
       ]
     )
   }
 })
 
-vm.$mount('#app');
+var vm = new Child().$mount('#app');
+vm.test = 'L';
 
-setTimeout(() => {
-  vm.name = 'L';
-}, 1000);
+// 输出结果
+// parent change
+// child change
 
 
 // console.log('vm:', vm)

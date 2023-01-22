@@ -53,6 +53,8 @@ export class Observer {
     // this.value = value
     this.dep = mock ? mockDep : new Dep()
     this.vmCount = 0
+    // tim-c 为什么不用 value.__ob__ = this，而要用 def()
+    // tim-c 主要是想让 __ob__ 不可被枚举，对 __ob__ 进行 defineReactive 是无意义的
     def(value, '__ob__', this)
     if (isArray(value)) {
       if (!mock) {

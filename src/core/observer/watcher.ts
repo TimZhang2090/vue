@@ -49,6 +49,8 @@ export default class Watcher implements DepTarget {
   sync: boolean
   dirty: boolean
   active: boolean
+  // tim-c vue2 中让 watch实例 来持有 依赖地图
+  // tim-c vue3 中则实现了一个全局的依赖地图： const targetMap = new WeakMap<any, KeyToDepMap>()
   deps: Array<Dep>
   newDeps: Array<Dep>
   depIds: SimpleSet
@@ -124,6 +126,8 @@ export default class Watcher implements DepTarget {
           )
       }
     }
+
+    // tim-c 触发首次依赖收集
     this.value = this.lazy ? undefined : this.get()
   }
 
@@ -131,6 +135,7 @@ export default class Watcher implements DepTarget {
    * Evaluate the getter, and re-collect dependencies.
    */
   get() {
+    // tim-c 设置 当前 watchIns
     pushTarget(this)
     let value
     const vm = this.vm
@@ -162,6 +167,8 @@ export default class Watcher implements DepTarget {
     if (!this.newDepIds.has(id)) {
       this.newDepIds.add(id)
       this.newDeps.push(dep)
+
+      // tim-c 没加过的，才可以加
       if (!this.depIds.has(id)) {
         dep.addSub(this)
       }
@@ -175,14 +182,24 @@ export default class Watcher implements DepTarget {
     let i = this.deps.length
     while (i--) {
       const dep = this.deps[i]
+      // tim-c 本轮加入的里面 找不到 上一轮 加的了，比如 v-if 的原因，让某个数据不在视图中显示了
+      // tim-c 那么那项数据的 depIns 就清除本 watchIns, 避免不必要的 更新派发
       if (!this.newDepIds.has(dep.id)) {
         dep.removeSub(this)
       }
     }
+
+    // 下面的总体逻辑是：
+    // 把 newDepIds 倒给 depIds，
+    // newDeps 倒给 deps
+    // newDepIds、newDeps 清空
+
     let tmp: any = this.depIds
     this.depIds = this.newDepIds
+    // tim-c 下一句都要清空了，这里还赋值做啥？赋值是改变应用对象，clear 是对象自身做清空，不是一回事
     this.newDepIds = tmp
     this.newDepIds.clear()
+
     tmp = this.deps
     this.deps = this.newDeps
     this.newDeps = tmp
