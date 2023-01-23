@@ -97,6 +97,7 @@ function flushSchedulerQueue() {
     has[id] = null
     watcher.run()
     // in dev build, check and stop circular updates.
+    // tim-c 上面的 watcher.run() 执行中又触发了 queueWatcher 、has[id] = true, 而且还是同一个 watcherIns，has[id] != null 就会成立。比如在一个自定义的监听数据 msg 的 watch 的回调中，再修改 msg，就会无限次的触发 msg 的set，再触发这个自定义 watchIns 的 queueWatcher
     if (__DEV__ && has[id] != null) {
       circular[id] = (circular[id] || 0) + 1
       if (circular[id] > MAX_UPDATE_COUNT) {
@@ -166,6 +167,7 @@ function callActivatedHooks(queue) {
  */
 export function queueWatcher(watcher: Watcher) {
   const id = watcher.id
+  // tim-c 保证同一个 watcherIns 只添加一次
   if (has[id] != null) {
     return
   }
@@ -178,9 +180,11 @@ export function queueWatcher(watcher: Watcher) {
   if (!flushing) {
     queue.push(watcher)
   } else {
+    // tim-c 这里就体现出工程实现上的一些复杂性：flushSchedulerQueue 中 watcher.run() 中如果又触发了数据的 set, 又触发了 queueWatcher，代码就会运行到这里，这时 flushSchedulerQueue 中对 queue 的 for 循环还在继续，这里就需要把新加入的 watchIns 插入到当前遍历点(或者直接满足了id的排序也可)的后面
     // if already flushing, splice the watcher based on its id
     // if already past its id, it will be run next immediately.
     let i = queue.length - 1
+    // tim-c index 是对 queue 遍历过程中的当前 索引
     while (i > index && queue[i].id > watcher.id) {
       i--
     }
