@@ -148,6 +148,7 @@ export default class Watcher implements DepTarget {
         throw e
       }
     } finally {
+      // tim-c 递归去访问 value，触发它所有子项的 getter
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
       if (this.deep) {
