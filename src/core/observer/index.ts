@@ -275,6 +275,7 @@ export function set(
       oldValue: undefined
     })
   } else {
+    // tim-c 手动触发更新
     ob.dep.notify()
   }
   return val
