@@ -237,7 +237,9 @@ export function set(
   }
   const ob = (target as any).__ob__
   if (isArray(target) && isValidArrayIndex(key)) {
+    // tim-c 手动改变数组长度
     target.length = Math.max(target.length, key)
+    // tim-c 手动替换指定位置的值
     target.splice(key, 1, val)
     // when mocking for SSR, array methods are not hijacked
     if (ob && !ob.shallow && ob.mock) {
@@ -261,6 +263,8 @@ export function set(
     target[key] = val
     return val
   }
+
+  // tim-c 给新的 key 做响应式处理
   defineReactive(ob.value, key, val, undefined, ob.shallow, ob.mock)
   if (__DEV__) {
     ob.dep.notify({
@@ -319,6 +323,7 @@ export function del(target: any[] | object, key: any) {
       key
     })
   } else {
+    // tim-c 手动触发更新
     ob.dep.notify()
   }
 }
