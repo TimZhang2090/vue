@@ -253,8 +253,9 @@ function createComputedGetter(key) {
     if (watcher) {
       if (watcher.dirty) {
         // tim-c 执行 watchIns.get()，执行 pushTarget，触发 Dep.target 设置当前 watchIns。
-        // tim-c 执行计算属性函数的过程中，会触发其依赖的若干个数据项的 get，那些数据项的 depIns 就会开始依赖收集
+        // 执行计算属性函数的过程中，会触发其依赖的若干个数据项的 get，那些数据项的 depIns 就会开始依赖收集
         // 当前计算属性的 watchIns 就会持有有它所依赖的 data 数据项的 depIns, 各个数据项的 depIns 会持有计算属性的 watchIns
+        // 各个数据项进行完依赖收集后，最后，watchIns.get() 中执行 popTarget()，Dep.target 变回 当前渲染 watchIns
         watcher.evaluate()
       }
       if (Dep.target) {
@@ -268,6 +269,10 @@ function createComputedGetter(key) {
         }
 
         // tim-c 再触发一次 计算属性 依赖的数据项的 依赖收集
+        // 数据项此时收集的是渲染 watchIns，是当前计算属性所属的那个 渲染 watchIns
+        // 之后，data下数据项发生更新，会先执行 计算属性 watchIns 的 update()，但只做了：this.dirty = true
+        // 再执行渲染 watchIns 的 update()，触发整个渲染流程，这样就又会执行计算属性的 computedGetter，
+        // 此时 this.dirty 是 true 了，就又会重新执行 watcher.evaluate() ，返回最新的计算值，达到了动态计算的效果
         watcher.depend()
       }
       return watcher.value
