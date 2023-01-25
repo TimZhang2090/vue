@@ -252,6 +252,9 @@ function createComputedGetter(key) {
     const watcher = this._computedWatchers && this._computedWatchers[key]
     if (watcher) {
       if (watcher.dirty) {
+        // tim-c 执行 watchIns.get()，执行 pushTarget，触发 Dep.target 设置当前 watchIns。
+        // tim-c 执行计算属性函数的过程中，会触发其依赖的若干个数据项的 get，那些数据项的 depIns 就会开始依赖收集
+        // 当前计算属性的 watchIns 就会持有有它所依赖的 data 数据项的 depIns, 各个数据项的 depIns 会持有计算属性的 watchIns
         watcher.evaluate()
       }
       if (Dep.target) {
@@ -263,6 +266,8 @@ function createComputedGetter(key) {
             key
           })
         }
+
+        // tim-c 再触发一次 计算属性 依赖的数据项的 依赖收集
         watcher.depend()
       }
       return watcher.value

@@ -127,7 +127,7 @@ export default class Watcher implements DepTarget {
       }
     }
 
-    // tim-c 触发首次依赖收集
+    // tim-c 触发首次依赖收集。对于计算属性（lazy 为 true ，在 new Watcher() 时则不会触发 get ）
     this.value = this.lazy ? undefined : this.get()
   }
 

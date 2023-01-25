@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vue.js tim example</title>
+  </head>
+  <body>
+    <div id="app">
+    </div>
+  </body>
+</html>
+
+
+<script type="module">
+import Vue from "../../../dist/vue.esm.browser.js"
+
+var vm = new Vue({
+  data() {
+    return {
+      firstName: 'Tim',
+      lastName: 'Roth'
+    }
+  },
+  computed: {
+    name: function () {
+      return this.firstName + ' ' +this.lastName
+    }
+  },
+  methods: {
+    foo() {
+      console.log('foo')
+    }
+  },
+  render: function(h){
+    return h(
+      'div',
+      {
+        attrs: {
+          id: 'foo'
+        },
+      },
+      [
+        h('h1', this.name),
+      ]
+    )
+  }
+})
+
+vm.$mount('#app');
+
+setTimeout(() => {
+  vm.lastName = 'Zhang';
+}, 1000);
+
+
+</script>
