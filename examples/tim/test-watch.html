@@ -14,51 +14,35 @@
 
 <script>
 
-Vue.component('TimToggle', {
+
+var vm = new Vue({
   template: `<div>
-    <div v-if="isShow">
-      <span @click="getRandomText">{{ randomText }}</span>
+    <button @click="changeName">{{name}}</button>
+    <div @click="getRandomText">
+      <span>{{ randomText }}</span>
     </div>
-    <button @click="toggle">toggle</button>
   </div>`,
   data() {
     return {
-      isShow: true,
+      name: 'L',
       randomText: '随机数'
     }
   },
-  methods:{
-    toggle() {
-      this.isShow = !this.isShow
+  watch: {
+    'name': function() {
+      console.log('name change')
+    }
+  },
+  methods: {
+    changeName() {
+      this.name = 'Tim'
     },
     getRandomText() {
       this.randomText = Math.random()
     },
-  }
-})
-
-
-var vm = new Vue({
-  data() {
-    return {
-      name: 'L'
-    }
   },
-  methods: {
-    foo() {
-      console.log('foo')
-    }
-  },
-  render: function(h){
-    return h('TimToggle')
-  }
 })
 
 vm.$mount('#app');
 
-
-
-// console.log('vm:', vm)
-// console.log('Vue.prototype:', Vue.prototype)
-// console.log('Vue:', Object.entries(Vue))
 </script>

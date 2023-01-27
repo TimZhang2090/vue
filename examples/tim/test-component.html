@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vue.js tim example</title>
+    <script src="../../../dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Test All</h1>
+    </div>
+  </body>
+</html>
+
+
+<script>
+
+Vue.component('TimToggle', {
+  template: `<div>
+    <div v-if="isShow">
+      <span @click="getRandomText">{{ randomText }}</span>
+    </div>
+    <button @click="toggle">toggle</button>
+  </div>`,
+  data() {
+    return {
+      isShow: true,
+      randomText: '随机数'
+    }
+  },
+  methods:{
+    toggle() {
+      this.isShow = !this.isShow
+    },
+    getRandomText() {
+      this.randomText = Math.random()
+    },
+  }
+})
+
+
+var vm = new Vue({
+  data() {
+    return {
+      name: 'L'
+    }
+  },
+  methods: {
+    foo() {
+      console.log('foo')
+    }
+  },
+  render: function(h){
+    return h('TimToggle')
+  }
+})
+
+vm.$mount('#app');
+
+
+
+// console.log('vm:', vm)
+// console.log('Vue.prototype:', Vue.prototype)
+// console.log('Vue:', Object.entries(Vue))
+</script>
