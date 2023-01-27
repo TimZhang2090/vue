@@ -198,6 +198,8 @@ export function queueWatcher(watcher: Watcher) {
       flushSchedulerQueue()
       return
     }
+
+    // tim-c 统一放到微任务阶段执行
     nextTick(flushSchedulerQueue)
   }
 }
