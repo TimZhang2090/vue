@@ -58,6 +58,7 @@ export class Observer {
     def(value, '__ob__', this)
     if (isArray(value)) {
       if (!mock) {
+        // tim-c 只对 data 下的数组改写其 原型（__proto__），不会对全局造成污染
         if (hasProto) {
           /* eslint-disable no-proto */
           ;(value as any).__proto__ = arrayMethods
@@ -152,6 +153,7 @@ export function defineReactive(
     val = obj[key]
   }
 
+  // tim-c 递归给属性的属性添加响应式侦听
   let childOb = !shallow && observe(val, false, mock)
   Object.defineProperty(obj, key, {
     enumerable: true,
