@@ -18,6 +18,8 @@
 var vm = new Vue({
   template: `<div>
     <button @click="changeName">{{name}}</button>
+    <button @click="changeNestObj">{{nestObj.foo.bar}}</button>
+
     <div @click="getRandomText">
       <span>{{ randomText }}</span>
     </div>
@@ -25,17 +27,31 @@ var vm = new Vue({
   data() {
     return {
       name: 'L',
-      randomText: '随机数'
+      nestObj: {
+        foo: {
+          bar: 'end'
+        }
+      },
+      randomText: '随机数',
     }
   },
   watch: {
     'name': function() {
       console.log('name change')
+    },
+    nestObj:{
+      deep: true,
+      handler(newVal) {
+        console.log('nestObj change')
+      }
     }
   },
   methods: {
     changeName() {
       this.name = 'Tim'
+    },
+    changeNestObj() {
+      this.nestObj.foo.bar = '😄'
     },
     getRandomText() {
       this.randomText = Math.random()
