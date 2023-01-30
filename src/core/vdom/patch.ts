@@ -818,6 +818,7 @@ export function createPatchFunction(backend) {
     } else {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // tim-c key 相同的新旧 vnode，需要做更多处理
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
@@ -851,6 +852,11 @@ export function createPatchFunction(backend) {
         // replacing existing element
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
+
+        // tim-c key 不同的 vnode，整体是三个步骤：
+        // 1. 根据新的 vnode, 创建新建 dom
+        // 2. 更新原来父节点对新创建出的 dom 的持有
+        // 3. 删除旧的 dom
 
         // create new node
         createElm(
