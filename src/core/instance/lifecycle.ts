@@ -331,6 +331,7 @@ export function updateChildComponent(
     for (let i = 0; i < propKeys.length; i++) {
       const key = propKeys[i]
       const propOptions: any = vm.$options.props // wtf flow?
+      // tim-c 触发 props 的 setter
       props[key] = validateProp(key, propOptions, propsData, vm)
     }
     toggleObserving(true)

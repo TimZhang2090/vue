@@ -77,11 +77,14 @@ function initProps(vm: Component, propsOptions: Object) {
   const keys: string[] = (vm.$options._propKeys = [])
   const isRoot = !vm.$parent
   // root instance props should be converted
+  // tim-c 非根组件的 props 来自父组件，无需重复 observe()
   if (!isRoot) {
     toggleObserving(false)
   }
   for (const key in propsOptions) {
     keys.push(key)
+
+    // tim-c props校验求值
     const value = validateProp(key, propsOptions, propsData, vm)
     /* istanbul ignore else */
     if (__DEV__) {
@@ -95,6 +98,9 @@ function initProps(vm: Component, propsOptions: Object) {
           vm
         )
       }
+
+      // tim-c 注意这里传入了第四个参数，customSetter
+      // 即调用 props 的 setter，会给出提示。 prop 不可改
       defineReactive(props, key, value, () => {
         if (!isRoot && !isUpdatingChildComponent) {
           warn(
