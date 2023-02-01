@@ -57,13 +57,16 @@ export function initState(vm: Component) {
   initSetup(vm)
 
   if (opts.methods) initMethods(vm, opts.methods)
+
   if (opts.data) {
     initData(vm)
   } else {
     const ob = observe((vm._data = {}))
     ob && ob.vmCount++
   }
+
   if (opts.computed) initComputed(vm, opts.computed)
+
   if (opts.watch && opts.watch !== nativeWatch) {
     initWatch(vm, opts.watch)
   }
@@ -137,6 +140,7 @@ function initData(vm: Component) {
         vm
       )
   }
+
   // proxy data on instance
   const keys = Object.keys(data)
   const props = vm.$options.props
@@ -145,11 +149,13 @@ function initData(vm: Component) {
   while (i--) {
     const key = keys[i]
     if (__DEV__) {
+      // tim-c 与 methods 命名冲突
       if (methods && hasOwn(methods, key)) {
         warn(`Method "${key}" has already been defined as a data property.`, vm)
       }
     }
     if (props && hasOwn(props, key)) {
+      // 与 props 命名冲突
       __DEV__ &&
         warn(
           `The data property "${key}" is already declared as a prop. ` +
@@ -160,6 +166,7 @@ function initData(vm: Component) {
       proxy(vm, `_data`, key)
     }
   }
+
   // observe data
   const ob = observe(data)
   ob && ob.vmCount++
@@ -229,6 +236,7 @@ export function defineComputed(
   userDef: Record<string, any> | (() => any)
 ) {
   const shouldCache = !isServerRendering()
+
   if (isFunction(userDef)) {
     sharedPropertyDefinition.get = shouldCache
       ? createComputedGetter(key)
@@ -242,6 +250,7 @@ export function defineComputed(
       : noop
     sharedPropertyDefinition.set = userDef.set || noop
   }
+
   if (__DEV__ && sharedPropertyDefinition.set === noop) {
     sharedPropertyDefinition.set = function () {
       warn(
@@ -250,6 +259,7 @@ export function defineComputed(
       )
     }
   }
+
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
@@ -278,7 +288,8 @@ function createComputedGetter(key) {
         // tim-c 再触发一次 计算属性 依赖的数据项的 依赖收集
         // 数据项此时收集的是渲染 watchIns，是当前计算属性所属的那个 渲染 watchIns
         // 之后，data下数据项发生更新，会先执行 计算属性 watchIns 的 update()，但只做了：this.dirty = true
-        // 再执行渲染 watchIns 的 update()，触发整个渲染流程，这样就又会执行计算属性的 computedGetter，
+        // 再执行渲染 watchIns 的 update()，触发整个渲染流程，重新生成 vnode 过程中，必然要访问计算属性，
+        // 从而就又会执行计算属性的 computedGetter，
         // 此时 this.dirty 是 true 了，就又会重新执行 watcher.evaluate() ，返回最新的计算值，达到了动态计算的效果
         watcher.depend()
       }
