@@ -47,6 +47,8 @@ export function validateProp(
     value = getPropDefaultValue(vm, prop, key)
     // since the default value is a fresh copy,
     // make sure to observe it.
+    // tim-c 来自父组件的 pros 值无需做响应式了，因为它们已经做过了
+    // 但对于默认值，需要做响应式处理
     const prevShouldObserve = shouldObserve
     toggleObserving(true)
     observe(value)
