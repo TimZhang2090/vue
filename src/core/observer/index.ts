@@ -153,7 +153,24 @@ export function defineReactive(
     val = obj[key]
   }
 
-  // tim-c 递归给属性的属性添加响应式侦听
+
+  // data: {
+  //   a: {
+  //     b: 'foo',
+  //   }
+  // }
+  // 比如当前的参数 obj 是 data， key 是 a，val 是 {b:'foo'}
+  // 那上面 const dep = new Dep() 是"挂在" a 下面
+  // 这个 dep 是一个框
+
+  // 下面 observe(val, false, mock)，就是在对 a 这个对象在做响应式机制添加
+  // 此时生成 childOb 是于 a 对象对应的，其下的 dep 是另一种形式的"挂在" a 下面的 depIns
+  // childOb === data.a.__ob__
+  // childOb.dep === data.a.__ob__.dep
+
+  // 现在就又两个 depIns 了，有了两个“筐”
+
+  // tim-c 递归给下一层对象添加响应式侦听
   let childOb = !shallow && observe(val, false, mock)
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -170,6 +187,18 @@ export function defineReactive(
         } else {
           dep.depend()
         }
+
+        // 第二个“筐”进行依赖收集
+        // 那这个 depIns 在哪里执行 notify() 呢
+
+        // 这第二个框，实际是在 $set 或 Vue.set 时被 notify() 的
+        // 首先，这里看出，两个“筐”收集了相同的依赖，而且是以不同形式对应于一个 对象 的
+
+        // $set 和 Vue.set 等方法让我们有能力给对象添加新属性的同时触发依赖，那么触发依赖是怎么做到的呢？
+        // 在下面的 set() 和 del() 函数内部调用的是 ob.dep.notify()，也就是 target.__ob__.dep.notify()
+        // 而这个 ob.dep 就是上面的 第二个“框”
+        // 因为 __ob__.dep 这个”筐“里收集了与第一个 dep 这个”筐“同样的依赖。
+
         if (childOb) {
           childOb.dep.depend()
           if (isArray(value)) {

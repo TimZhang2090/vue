@@ -171,6 +171,7 @@ export default class Watcher implements DepTarget {
 
       // tim-c 没加过的，才可以加
       if (!this.depIds.has(id)) {
+        // tim-c 数据项的 depIns 去持有 watcherIns, 将 watcherIns 添加到其下的 subs
         dep.addSub(this)
       }
     }
