@@ -210,6 +210,8 @@ function initComputed(vm: Component, computed: Object) {
       )
     }
 
+    // tim-c 对于子组件而言，真正 initComputed 的过程是发生在 Vue.extend 方法中
+    // 所以这里有 if(!(key in vm)) 的判断
     // component-defined computed properties are already defined on the
     // component prototype. We only need to define computed properties defined
     // at instantiation here.
