@@ -191,7 +191,7 @@ export function defineReactive(
         // 第二个“筐”进行依赖收集
         // 那这个 depIns 在哪里执行 notify() 呢
 
-        // 这第二个框，实际是在 $set 或 Vue.set 时被 notify() 的
+        // 这第二个框，实际是在 $set、Vue.set、$delete 以及数组劫持方法触发 时被 notify() 的
         // 首先，这里看出，两个“筐”收集了相同的依赖，而且是以不同形式对应于一个 对象 的
 
         // $set 和 Vue.set 等方法让我们有能力给对象添加新属性的同时触发依赖，那么触发依赖是怎么做到的呢？
@@ -327,7 +327,10 @@ export function del(target: any[] | object, key: any) {
     target.splice(key, 1)
     return
   }
+
   const ob = (target as any).__ob__
+
+  // tim-c 直接 $set data 是不可以的：this.$set(this.data,”key”,value')
   if ((target as any)._isVue || (ob && ob.vmCount)) {
     __DEV__ &&
       warn(

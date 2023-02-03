@@ -88,6 +88,7 @@ function flushSchedulerQueue() {
 
   // do not cache length because more watchers might be pushed
   // as we run existing watchers
+  // tim-c for 循环中 queue.length 一直用的是最新的，因为 flushing 过程中 queue 长度是会变化的
   for (index = 0; index < queue.length; index++) {
     watcher = queue[index]
     if (watcher.before) {
@@ -97,7 +98,8 @@ function flushSchedulerQueue() {
     has[id] = null
     watcher.run()
     // in dev build, check and stop circular updates.
-    // tim-c 上面的 watcher.run() 执行中又触发了 queueWatcher 、has[id] = true, 而且还是同一个 watcherIns，has[id] != null 就会成立。比如在一个自定义的监听数据 msg 的 watch 的回调中，再修改 msg，就会无限次的触发 msg 的set，再触发这个自定义 watchIns 的 queueWatcher
+    // tim-c 上面的 watcher.run() 执行中又触发了 queueWatcher 、has[id] = true, 而且还是同一个 watcherIns，has[id] != null 就会成立。比如在一个自定义的监听数据 msg 的 watch 的回调中，再修改 msg，就会无限次的触发 msg 的 set，再触发这个自定义 watchIns 的 queueWatcher
+    // https://wangtunan.github.io/blog/vueAnalysis/reactive/notify.html#%E6%AD%BB%E5%BE%AA%E7%8E%AF
     if (__DEV__ && has[id] != null) {
       circular[id] = (circular[id] || 0) + 1
       if (circular[id] > MAX_UPDATE_COUNT) {
@@ -180,6 +182,7 @@ export function queueWatcher(watcher: Watcher) {
   if (!flushing) {
     queue.push(watcher)
   } else {
+    // tim-c 正在 flushing ，过程中又有 watcherIns 需要添加到队列的，就需要给它们找个合适的位置了
     // tim-c 这里就体现出工程实现上的一些复杂性：flushSchedulerQueue 中 watcher.run() 中如果又触发了数据的 set, 又触发了 queueWatcher，代码就会运行到这里，这时 flushSchedulerQueue 中对 queue 的 for 循环还在继续，这里就需要把新加入的 watchIns 插入到当前遍历点(或者直接满足了id的排序也可)的后面
     // if already flushing, splice the watcher based on its id
     // if already past its id, it will be run next immediately.
