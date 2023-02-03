@@ -296,6 +296,7 @@ export function set(
   }
 
   // tim-c 给新的 key 做响应式处理
+  // ob.value “就是” target
   defineReactive(ob.value, key, val, undefined, ob.shallow, ob.mock)
   if (__DEV__) {
     ob.dep.notify({

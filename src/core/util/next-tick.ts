@@ -104,13 +104,23 @@ export function nextTick(cb?: (...args: any[]) => any, ctx?: object) {
       _resolve(ctx)
     }
   })
+
+  // tim-c flushCallbacks 已经加入微任务队列了，等待执行了，就不用再加了
+  // 但上面的 callbacks 该 push 还是可以继续 push 的，执行微任务时，一把都会执行完
   if (!pending) {
     pending = true
     timerFunc()
   }
+
   // $flow-disable-line
   if (!cb && typeof Promise !== 'undefined') {
+    // tim-c 这里返回一个 promise 实例，提供了这如下用法：
+    // this.$nextTick().then(() => {
+    //   callback()
+    // })
     return new Promise(resolve => {
+      // tim-c 这一赋值，让 resolve 的执行发生在上面的 _resolve(ctx) 中，
+      // 也就是微任务阶段执行完 push 到 callbacks 中的匿名函数后
       _resolve = resolve
     })
   }
