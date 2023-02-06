@@ -642,14 +642,19 @@ export function createPatchFunction(backend) {
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
         if (oldCh !== ch)
+          // tim-c diff 核心
+          // 新老都有子，还不同，就需要 diff 啦
           updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
       } else if (isDef(ch)) {
         if (__DEV__) {
           checkDuplicateKeys(ch)
         }
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
+
+        // tim-c 新的有子，老的无子，直接添加子节点
         addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue)
       } else if (isDef(oldCh)) {
+        // tim-c 新的无子，老的有子，就把 原来的子 全部移除
         removeVnodes(oldCh, 0, oldCh.length - 1)
       } else if (isDef(oldVnode.text)) {
         nodeOps.setTextContent(elm, '')
@@ -818,10 +823,12 @@ export function createPatchFunction(backend) {
     } else {
       const isRealElement = isDef(oldVnode.nodeType)
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        // tim-c 重点
         // tim-c key 相同的新旧 vnode，需要做更多处理
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // tim-c 旧 vnode 传入的是原生 dom (待挂载的 el), 把它处理成 vnode 实例
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -849,14 +856,17 @@ export function createPatchFunction(backend) {
           oldVnode = emptyNodeAt(oldVnode)
         }
 
+        // tim-c key 不同的 vnode，整体是三个步骤：
+        // 1. 根据新的 vnode, 创建新建 dom
+        // 1.1 更新原来父节点对新创建出的 dom 的持有
+        // 2. 更新 组件vnode（占位符节点） 的 ele 属性；
+        // update parent placeholder node element, recursively
+        // ancestor.elm = vnode.elm
+        // 3. 删除旧的 dom
+
         // replacing existing element
         const oldElm = oldVnode.elm
         const parentElm = nodeOps.parentNode(oldElm)
-
-        // tim-c key 不同的 vnode，整体是三个步骤：
-        // 1. 根据新的 vnode, 创建新建 dom
-        // 2. 更新原来父节点对新创建出的 dom 的持有
-        // 3. 删除旧的 dom
 
         // create new node
         createElm(

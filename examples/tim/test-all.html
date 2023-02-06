@@ -15,7 +15,27 @@
 <script>
 
 Vue.component('TimSpan', {
-	template: '<span>组件</span>'
+  data() {
+    return {
+      msg: 'A'
+    }
+  },
+	template: `<span>
+    <div v-if="msg === 'A'">div</div>
+    <li v-if="msg !== 'A'">li</li>
+    </span>`,
+  mounted() {
+    setTimeout(() => {
+      this.msg = 'A变了';
+    }, 1000);
+  },
+})
+
+Vue.component('TimDiv', {
+	template: `<div>
+    组件Div
+    <TimSpan></TimSpan>
+  </div>`
 })
 
 
@@ -41,7 +61,7 @@ var vm = new Vue({
       [
         '一行文字',
         h('h1', this.name),
-        h('TimSpan'),
+        h('TimDiv'),
       ]
     )
   }
