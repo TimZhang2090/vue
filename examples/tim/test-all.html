@@ -25,9 +25,9 @@ Vue.component('TimSpan', {
     <li v-if="msg !== 'A'">li</li>
     </span>`,
   mounted() {
-    setTimeout(() => {
-      this.msg = 'A变了';
-    }, 1000);
+    // setTimeout(() => {
+    //   this.msg = 'A变了';
+    // }, 1000);
   },
 })
 
@@ -35,14 +35,23 @@ Vue.component('TimDiv', {
 	template: `<div>
     组件Div
     <TimSpan></TimSpan>
-  </div>`
+    {{this.width}}
+  </div>`,
+  props: {
+    width: {
+      type: String | Number,
+      default: '50',
+      required: false,
+    },
+  }
 })
 
 
 var vm = new Vue({
   data() {
     return {
-      name: 'Tim'
+      name: 'Tim',
+      outerWidth: 100,
     }
   },
   methods: {
@@ -61,7 +70,14 @@ var vm = new Vue({
       [
         '一行文字',
         h('h1', this.name),
-        h('TimDiv'),
+        h(
+          'TimDiv',
+          {
+            props: {
+              width: this.outerWidth
+            },
+          }
+        ),
       ]
     )
   }
@@ -70,7 +86,8 @@ var vm = new Vue({
 vm.$mount('#app');
 
 setTimeout(() => {
-  vm.name = 'L';
+  // vm.name = 'L';
+  vm.outerWidth = 999
 }, 1000);
 
 
