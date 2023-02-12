@@ -414,6 +414,7 @@ export function createPatchFunction(backend) {
     }
   }
 
+  // tim-c 此方法中的 patchVnode 会递归再比对下一层 子节点
   function updateChildren(
     parentElm,
     oldCh,
@@ -422,13 +423,15 @@ export function createPatchFunction(backend) {
     removeOnly
   ) {
     let oldStartIdx = 0
-    let newStartIdx = 0
     let oldEndIdx = oldCh.length - 1
     let oldStartVnode = oldCh[0]
     let oldEndVnode = oldCh[oldEndIdx]
+
+    let newStartIdx = 0
     let newEndIdx = newCh.length - 1
     let newStartVnode = newCh[0]
     let newEndVnode = newCh[newEndIdx]
+
     let oldKeyToIdx, idxInOld, vnodeToMove, refElm
 
     // removeOnly is a special flag used only by <transition-group>
@@ -445,7 +448,7 @@ export function createPatchFunction(backend) {
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
       } else if (isUndef(oldEndVnode)) {
         oldEndVnode = oldCh[--oldEndIdx]
-      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+      } else if (sameVnode(oldStartVnode, newStartVnode)) { // 判断 头头 是否 same
         patchVnode(
           oldStartVnode,
           newStartVnode,
@@ -455,7 +458,7 @@ export function createPatchFunction(backend) {
         )
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
-      } else if (sameVnode(oldEndVnode, newEndVnode)) {
+      } else if (sameVnode(oldEndVnode, newEndVnode)) { // 判断 尾尾 是否 same
         patchVnode(
           oldEndVnode,
           newEndVnode,
@@ -465,7 +468,7 @@ export function createPatchFunction(backend) {
         )
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
-      } else if (sameVnode(oldStartVnode, newEndVnode)) {
+      } else if (sameVnode(oldStartVnode, newEndVnode)) { // 判断 旧头新尾 是否 same
         // Vnode moved right
         patchVnode(
           oldStartVnode,
@@ -482,7 +485,7 @@ export function createPatchFunction(backend) {
           )
         oldStartVnode = oldCh[++oldStartIdx]
         newEndVnode = newCh[--newEndIdx]
-      } else if (sameVnode(oldEndVnode, newStartVnode)) {
+      } else if (sameVnode(oldEndVnode, newStartVnode)) { // 判断 旧尾新头 是否 same
         // Vnode moved left
         patchVnode(
           oldEndVnode,
@@ -491,8 +494,11 @@ export function createPatchFunction(backend) {
           newCh,
           newStartIdx
         )
+
+        // 旧尾新头相等，把 旧尾 移到 旧“剩余”列表 的头部
         canMove &&
           nodeOps.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
+
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
@@ -545,6 +551,7 @@ export function createPatchFunction(backend) {
         newStartVnode = newCh[++newStartIdx]
       }
     }
+
     if (oldStartIdx > oldEndIdx) {
       refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
       addVnodes(
