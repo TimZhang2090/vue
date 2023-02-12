@@ -634,6 +634,7 @@ export function createPatchFunction(backend) {
       return
     }
 
+    // 子组件先更新，触发 prepatch 钩子
     let i
     const data = vnode.data
     if (isDef(data) && isDef((i = data.hook)) && isDef((i = i.prepatch))) {
@@ -646,6 +647,7 @@ export function createPatchFunction(backend) {
       for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
       if (isDef((i = data.hook)) && isDef((i = i.update))) i(oldVnode, vnode)
     }
+
     if (isUndef(vnode.text)) {
       if (isDef(oldCh) && isDef(ch)) {
         if (oldCh !== ch)
@@ -666,9 +668,11 @@ export function createPatchFunction(backend) {
       } else if (isDef(oldVnode.text)) {
         nodeOps.setTextContent(elm, '')
       }
-    } else if (oldVnode.text !== vnode.text) {
+    } else if (oldVnode.text !== vnode.text) { //新的是文本节点，且新旧文本内容不相同，则直接替换文本内容
       nodeOps.setTextContent(elm, vnode.text)
     }
+
+    // 执行 postpatch 钩子函数
     if (isDef(data)) {
       if (isDef((i = data.hook)) && isDef((i = i.postpatch))) i(oldVnode, vnode)
     }
