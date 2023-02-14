@@ -339,6 +339,7 @@ export function updateChildComponent(
     vm.$options.propsData = propsData
   }
 
+  // 对于 插槽式子“组件” 强制触发更新
   // resolve slots + force update if has children
   if (needsForceUpdate) {
     vm.$slots = resolveSlots(renderChildren, parentVnode.context)
