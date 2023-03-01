@@ -144,6 +144,8 @@ export function createPatchFunction(backend) {
     const data = vnode.data
     const children = vnode.children
     const tag = vnode.tag
+
+    // tim 创建元素节点
     if (isDef(tag)) {
       if (__DEV__) {
         if (data && data.pre) {
@@ -180,9 +182,11 @@ export function createPatchFunction(backend) {
         creatingElmInVPre--
       }
     } else if (isTrue(vnode.isComment)) {
+      // tim 创建注释节点
       vnode.elm = nodeOps.createComment(vnode.text)
       insert(parentElm, vnode.elm, refElm)
     } else {
+      // tim 创建文本节点
       vnode.elm = nodeOps.createTextNode(vnode.text)
       insert(parentElm, vnode.elm, refElm)
     }
