@@ -288,11 +288,21 @@ function createComputedGetter(key) {
         }
 
         // tim-c 再触发一次 计算属性 依赖的数据项的 依赖收集
-        // 数据项此时收集的是渲染 watchIns，是当前计算属性所属的那个 渲染 watchIns
+        // 数据项此时收集的是渲染 watchIns，是当前计算属性所属的那个 渲染watchIns
+
+        // 也就是，对于 计算属性 所依赖的`数据项`，让 渲染watchIns 也去依赖这些`数据项`
+
         // 之后，data下数据项发生更新，会先执行 计算属性 watchIns 的 update()，但只做了：this.dirty = true
-        // 再执行渲染 watchIns 的 update()，触发整个渲染流程，重新生成 vnode 过程中，必然要访问计算属性，
-        // 从而就又会执行计算属性的 computedGetter，
-        // 此时 this.dirty 是 true 了，就又会重新执行 watcher.evaluate() ，返回最新的计算值，达到了动态计算的效果
+        // 再执行 渲染watchIns 的 update()，触发整个渲染流程，这样就又会执行计算属性的 computedGetter，
+        // 此时 this.dirty 是 true 了，就又会重新执行 watcher.evaluate() ，
+        // 返回最新的计算值，达到了动态计算的效果
+
+        // 计算属性的重新求值是分两步走的：
+        // 1. 计算watcherIns 执行 update()，执行 this.dirty = true
+        // 2. 渲染watcherIns 执行 update()，触发 计算watcherIns 的重新 evaluate()
+
+        // 渲染watcherIns 如果因为其他一些“非计算属性依赖的 数据项”变动，而执行 update()，
+        // 由于没有上面的第一步，所以 计算watcherIns 会直接返回 “缓存” 的 value，跳过了重新 evaluate()
         watcher.depend()
       }
       return watcher.value
