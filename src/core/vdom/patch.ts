@@ -481,6 +481,8 @@ export function createPatchFunction(backend) {
           newCh,
           newEndIdx
         )
+
+        // 旧头新尾相同，把 旧头的DOM 移动到 原DOM列表末尾
         canMove &&
           nodeOps.insertBefore(
             parentElm,
@@ -556,6 +558,8 @@ export function createPatchFunction(backend) {
       }
     }
 
+    // 循环结束后，可能会存在两种情况
+    // 1. oldCh 已经全部处理完成，而 newCh 还有新的节点，需要对剩下的每个项都创建新的 dom
     if (oldStartIdx > oldEndIdx) {
       refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm
       addVnodes(
@@ -567,6 +571,7 @@ export function createPatchFunction(backend) {
         insertedVnodeQueue
       )
     } else if (newStartIdx > newEndIdx) {
+      // 2. newCh 已经全部处理完成，而 oldCh 还有旧的节点，需要将多余的节点移除
       removeVnodes(oldCh, oldStartIdx, oldEndIdx)
     }
   }
