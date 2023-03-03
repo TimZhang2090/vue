@@ -662,6 +662,8 @@ export function createPatchFunction(backend) {
         if (__DEV__) {
           checkDuplicateKeys(ch)
         }
+
+        // tim-c 新的有子，老的无子，老的是文本节点，先把 elm 的 textContent 置空
         if (isDef(oldVnode.text)) nodeOps.setTextContent(elm, '')
 
         // tim-c 新的有子，老的无子，直接添加子节点
@@ -670,9 +672,11 @@ export function createPatchFunction(backend) {
         // tim-c 新的无子，老的有子，就把 原来的子 全部移除
         removeVnodes(oldCh, 0, oldCh.length - 1)
       } else if (isDef(oldVnode.text)) {
+        // tim-c 新老都无子，老的是文本节点，把 elm 的 textContent 置空
         nodeOps.setTextContent(elm, '')
       }
-    } else if (oldVnode.text !== vnode.text) { //新的是文本节点，且新旧文本内容不相同，则直接替换文本内容
+    } else if (oldVnode.text !== vnode.text) {
+      // tim-c 新的是文本节点，且新旧文本内容不相同，则直接替换文本内容
       nodeOps.setTextContent(elm, vnode.text)
     }
 
