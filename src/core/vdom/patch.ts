@@ -508,11 +508,17 @@ export function createPatchFunction(backend) {
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
+        // 以上四种 找相同 都没找到
+
+        // 创建 key 映射到 位置index 的 map
         if (isUndef(oldKeyToIdx))
           oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+
         idxInOld = isDef(newStartVnode.key)
-          ? oldKeyToIdx[newStartVnode.key]
-          : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx)
+          ? oldKeyToIdx[newStartVnode.key] // 有 key 通过 key 来找
+          : findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx) // 否则通过循环遍历来找
+
+        // 在老列表里，没找到 当前新节点，新建DOM并插入
         if (isUndef(idxInOld)) {
           // New element
           createElm(
@@ -534,7 +540,10 @@ export function createPatchFunction(backend) {
               newCh,
               newStartIdx
             )
+
+            // 置 undefined ，清空，但位置还要占着
             oldCh[idxInOld] = undefined
+
             canMove &&
               nodeOps.insertBefore(
                 parentElm,
@@ -554,6 +563,7 @@ export function createPatchFunction(backend) {
             )
           }
         }
+
         newStartVnode = newCh[++newStartIdx]
       }
     }
