@@ -106,6 +106,8 @@ export function lifecycleMixin(Vue: typeof Component) {
 
   Vue.prototype.$destroy = function () {
     const vm: Component = this
+
+    // tim-c 防止 .$destroy 中再调用 .$destroy ，爆栈
     if (vm._isBeingDestroyed) {
       return
     }
@@ -116,6 +118,10 @@ export function lifecycleMixin(Vue: typeof Component) {
     if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
       remove(parent.$children, vm)
     }
+
+    // tim-c 以前要通过 vm._watcher(渲染watch) 和 vm._watchers(各种其他watcher) 的 teardown 方法来移除依赖
+    // 现在都被封装在 EffectScope 中了
+
     // teardown scope. this includes both the render watcher and other
     // watchers created
     vm._scope.stop()
