@@ -511,6 +511,9 @@ export function createPatchFunction(backend) {
         // 以上四种 找相同 都没找到
 
         // 创建 key 映射到 位置index 的 map
+        // 这里是个优化点，虽然 key 相等，sameVnode 也不一定返回 true
+        // 但还是先通过 key 找，之后再做 sameVnode 的判断
+        // 毕竟每次都循环遍历效率太低
         if (isUndef(oldKeyToIdx))
           oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
 
@@ -532,6 +535,8 @@ export function createPatchFunction(backend) {
           )
         } else {
           vnodeToMove = oldCh[idxInOld]
+
+          // 再做 sameVnode 的判断
           if (sameVnode(vnodeToMove, newStartVnode)) {
             patchVnode(
               vnodeToMove,
