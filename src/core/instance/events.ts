@@ -80,11 +80,16 @@ export function eventsMixin(Vue: typeof Component) {
 
   Vue.prototype.$once = function (event: string, fn: Function): Component {
     const vm: Component = this
+
+    // tim-c 劫持用户自定义回调函数，织入移除事件逻辑
     function on() {
       vm.$off(event, on)
       fn.apply(vm, arguments)
     }
+
+    // tim-c 将原回调函数挂载在 on 函数下，方便之后移除时 做相等判断：if (cb === fn || cb.fn === fn)
     on.fn = fn
+
     vm.$on(event, on)
     return vm
   }
@@ -94,6 +99,7 @@ export function eventsMixin(Vue: typeof Component) {
     fn?: Function
   ): Component {
     const vm: Component = this
+    // tim-c 无参数，移除所有
     // all
     if (!arguments.length) {
       vm._events = Object.create(null)
@@ -111,6 +117,8 @@ export function eventsMixin(Vue: typeof Component) {
     if (!cbs) {
       return vm
     }
+
+    // tim-c 有事件名，没提供具体回调，移除该事件所有已注册回调
     if (!fn) {
       vm._events[event!] = null
       return vm
@@ -118,6 +126,7 @@ export function eventsMixin(Vue: typeof Component) {
     // specific handler
     let cb
     let i = cbs.length
+    // tim-c 注意是从后向前变量的哦，因为遍历中有删除操作
     while (i--) {
       cb = cbs[i]
       if (cb === fn || cb.fn === fn) {
