@@ -22,6 +22,7 @@ function updateDirectives(oldVnode: VNodeWithData, vnode: VNodeWithData) {
 function _update(oldVnode, vnode) {
   const isCreate = oldVnode === emptyNode
   const isDestroy = vnode === emptyNode
+
   const oldDirs = normalizeDirectives(
     oldVnode.data.directives,
     oldVnode.context
@@ -35,6 +36,8 @@ function _update(oldVnode, vnode) {
   for (key in newDirs) {
     oldDir = oldDirs[key]
     dir = newDirs[key]
+
+    // 旧vnode里没有，说明是新的指令，执行 bind
     if (!oldDir) {
       // new directive, bind
       callHook(dir, 'bind', vnode, oldVnode)
@@ -59,6 +62,7 @@ function _update(oldVnode, vnode) {
       }
     }
     if (isCreate) {
+      // tim-c 把钩子存好，等待调用
       mergeVNodeHook(vnode, 'insert', callInsert)
     } else {
       callInsert()
@@ -66,6 +70,7 @@ function _update(oldVnode, vnode) {
   }
 
   if (dirsWithPostpatch.length) {
+    // tim-c 把钩子存好，等待调用
     mergeVNodeHook(vnode, 'postpatch', () => {
       for (let i = 0; i < dirsWithPostpatch.length; i++) {
         callHook(dirsWithPostpatch[i], 'componentUpdated', vnode, oldVnode)
